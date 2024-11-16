@@ -24,63 +24,71 @@ def get_db_connection():
         print("Error connecting to MySQL", e)
         return None
 
-# Fetch data
-@app.route('/api/data/<string:tableName>', methods=['GET'])
-def get_data(tableName):
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM " + tableName)
-        rows = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        return jsonify(rows)
-    else:
-        return jsonify({'error': 'Failed to connect to database'})
+def query_table(table_name, filters):
+    conn = get_db_connection()
+    if conn is None:
+        return {'error': 'Database connection failed'}, 500
 
-# Insert data
-@app.route('/api/data', methods=['POST'])
-def add_data():
-    data = request.get_json()
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO your_table_name (col1, col2) VALUES (%s, %s)", (data['col1'], data['col2']))
-        connection.commit()
-        cursor.close()
-        connection.close()
-        return jsonify({'message': 'Data added successfully'})
-    else:
-        return jsonify({'error': 'Failed to connect to database'})
+    # Define allowed tables and columns to prevent SQL injection
+    allowed_tables = {
+        'Team': ['teamID', 'team_Name', 'coachID', 'divisionID', 'location', 'ownerID', 'general_manager', 'revenue', 'team_color'],
+        'Player': ['playerID', 'f_Name', 'l_Name', 'player_Number', 'team_ID', 'position', 'status', 'height_in', 'weight', 'starting_Year', 'age']
+    }
 
-# Update data
-@app.route('/api/data/<int:id>', methods=['PUT'])
-def update_data(id):
-    data = request.get_json()
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor()
-        cursor.execute("UPDATE your_table_name SET col1 = %s WHERE id = %s", (data['col1'], id))
-        connection.commit()
-        cursor.close()
-        connection.close()
-        return jsonify({'message': 'Data updated successfully'})
-    else:
-        return jsonify({'error': 'Failed to connect to database'})
+    if table_name not in allowed_tables:
+        return {'error': 'Invalid table name'}, 400
 
-# Delete data
-@app.route('/api/data/<int:id>', methods=['DELETE'])
-def delete_data(id):
-    connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor()
-        cursor.execute("DELETE FROM your_table_name WHERE id = %s", (id,))
-        connection.commit()
+    try:
+        query = f"SELECT * FROM {table_name} WHERE 1=1"
+        params = []
+
+        # Dynamically construct query from filters
+        for column, value in filters.items():
+            col_name = column
+            operator = '='
+
+            if '__gt' in column:
+                col_name = column.replace('__gt', '')
+                operator = '>'
+            elif '__lt' in column:
+                col_name = column.replace('__lt', '')
+                operator = '<'
+            elif '__gte' in column:
+                col_name = column.replace('__gte', '')
+                operator = '>='
+            elif '__lte' in column:
+                col_name = column.replace('__lte', '')
+                operator = '<='
+
+            if col_name not in allowed_tables[table_name]:
+                continue  # Skip invalid columns
+
+            query += f" AND {col_name} {operator} %s"
+            params.append(value)
+        print(query)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query, params)
+        results = cursor.fetchall()
         cursor.close()
-        connection.close()
-        return jsonify({'message': 'Data deleted successfully'})
-    else:
-        return jsonify({'error': 'Failed to connect to database'})
+        conn.close()
+        return results
+    except Error as e:
+        print(f"Error querying table {table_name}: {e}")
+        return {'error': 'Failed to query table'}, 500
+
+# API endpoint for Team table
+@app.route('/api/team', methods=['GET'])
+def get_team():
+    filters = request.args.to_dict()
+    result = query_table('Team', filters)
+    return jsonify(result)
+
+# API endpoint for Player table
+@app.route('/api/player', methods=['GET'])
+def get_player():
+    filters = request.args.to_dict()
+    result = query_table('Player', filters)
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
