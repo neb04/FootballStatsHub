@@ -3,7 +3,6 @@ import axios from 'axios';
 import DisplayData from './DisplayData';
 
 export default function HomePage() {
-    // Division mapping utilities remain the same
     const divisionMap = {
         'NFC North': 1,
         'NFC South': 2,
