@@ -74,6 +74,21 @@ export default function HomePage() {
 
         // Clear appropriate filters based on the selected tab
         if (tab === 'Team') {
+            const fetchTeamNames = async () => {
+                try {
+                    setIsLoading(true);
+                    const response = await axios.get('http://localhost:5000/api/teamNames');
+                    setNflTeams(response.data);
+                } catch (error) {
+                    console.error('Error fetching team names:', error);
+                    setNflTeams([]);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+    
+            fetchTeamNames();
+
             setFilters(prev => ({
                 ...prev,
                 type: 'Team',
@@ -137,9 +152,21 @@ export default function HomePage() {
 
     const handleSearch = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api', {
-                params: filters,
-            });
+            var response;
+            
+            if(selectedTab==='Advanced Filters') {
+                response = await axios.get('http://localhost:5000/api', {
+                    params: filters,
+                });
+            } else if(selectedTab==='Player') {
+                response = await axios.get('http://localhost:5000/api/player', {
+                    params: {name: filters.name},
+                });
+            } else { // Team tab is selected
+                response = await axios.get('http://localhost:5000/api', {
+                    params: filters,
+                });
+            }
             setSearchResults(response.data);
             setSelectedResult(null); // Clear previously selected result
         } catch (error) {
@@ -273,35 +300,54 @@ export default function HomePage() {
             </div>
 
             <div className="mt-6">
-                <h2 className="text-xl font-bold">Search Results</h2>
-                {searchResults.length > 0 ? (
-                    <ul className="mt-4">
-                        {searchResults.map((result, index) => (
-                            <li key={index} className="p-4 border-b border-gray-300 flex justify-between items-center">
-                                <div>
-                                    <p>
-                                        <strong>Team:</strong> {result.team_Name}
-                                    </p>
-                                    <p>
-                                        <strong>Division:</strong> {getDivisionName(result.divisionID)}
-                                    </p>
-                                    <p>
-                                        <strong>Revenue:</strong> ${result.revenue}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => handleResultSelect(result)}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
-                                >
-                                    Select
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="mt-4 text-gray-500">No results found</p>
-                )}
-            </div>
+    <h2 className="text-xl font-bold">Search Results</h2>
+    {searchResults.length > 0 ? (
+        <ul className="mt-4">
+            {searchResults.map((result, index) => (
+                <li key={index} className="p-4 border-b border-gray-300 flex justify-between items-center">
+                    <div>
+                        {selectedTab === 'Team' ? (
+                            // Display Team data
+                            <>
+                                <p>
+                                    <strong>Team:</strong> {result.team_Name}
+                                </p>
+                                <p>
+                                    <strong>Division:</strong> {getDivisionName(result.divisionID)}
+                                </p>
+                                <p>
+                                    <strong>Revenue:</strong> ${result.revenue}
+                                </p>
+                            </>
+                        ) : selectedTab === 'Player' ? (
+                            // Display Player data
+                            <>
+                                <p>
+                                    <strong>Name:</strong> {result.f_Name + ' ' + result.l_Name}
+                                </p>
+                                <p>
+                                    <strong>Team:</strong> {result.location + ' ' + result.team_Name}
+                                </p>
+                                <p>
+                                    <strong>Player Number:</strong> {result.player_Number}
+                                </p>
+                            </>
+                        ) : null}
+                    </div>
+                    <button
+                        onClick={() => handleResultSelect(result)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                    >
+                        Select
+                    </button>
+                </li>
+            ))}
+        </ul>
+    ) : (
+        <p className="mt-4 text-gray-500">No results found</p>
+    )}
+</div>
+
 
             {selectedResult && <DisplayData data={selectedResult} />}
         </main>

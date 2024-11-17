@@ -39,7 +39,10 @@ def query_table(table_name, filters):
         return {'error': 'Invalid table name'}, 400
 
     try:
-        query = f"SELECT * FROM {table_name} WHERE 1=1"
+        query = f"SELECT * FROM {table_name} "
+        if filters['type']=='Team':
+            query += "JOIN Defense ON Defense.teamID = Team.teamID "
+        query += "WHERE 1=1 "
         params = []
         print(filters)
         # Dynamically construct query from filters
@@ -71,6 +74,7 @@ def query_table(table_name, filters):
 
             query += f" AND {col_name} {operator} \'{value}\'"
             #params.append(value)
+        
         print('Query: ', query)
         cursor = conn.cursor(dictionary=True)
         #cursor.execute(query, params)
@@ -95,8 +99,44 @@ def get_team():
 @app.route('/api/player', methods=['GET'])
 def get_player():
     filters = request.args.to_dict()
-    result = query_table('Player', filters)
-    return jsonify(result)
+    name = filters.get('name', '')
+    
+    query = f"""
+    SELECT Player.*, Team.location, Team.team_Name
+    FROM Player
+    JOIN Team ON Team.teamID = Player.team_ID
+    WHERE CONCAT(Player.f_Name, ' ', Player.l_Name) LIKE '%{name}%';
+    """
+    print('Query: ', query)
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        # Add position-specific data
+        for player in results:
+            position = player.get('position')
+            if position in ['Quarterback', 'RunningBack', 'WideReceiver']:
+                position_query = f"""
+                SELECT * FROM {position}
+                WHERE playerID = %s;
+                """
+                cursor.execute(position_query, (player['playerID'],))
+                position_data = cursor.fetchone()
+                if position_data:
+                    # Merge position-specific data into the player entry
+                    player.update(position_data)
+
+        cursor.close()
+        conn.close()
+        print('Results: ', results)
+        return jsonify(results)
+    except Exception as e:
+        print(f'Error: {e}')
+        return jsonify({'error': 'Error while fetching data'}), 500
+
+    
 
 @app.route('/api', methods=['GET'])
 def get_query():
@@ -124,6 +164,137 @@ def get_team_names():
     except Error as e:
         print(f"Error querying table Team: {e}")
         return {'error': 'Failed to query table'}, 500
+
+@app.route('/api/edit', methods=['POST'])
+def edit_data():
+    try:
+        # Get the JSON data from the request
+        data = request.get_json()
+        print(data)
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'No data provided'
+            }), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Check if playerID or teamID is present
+        if 'originalPlayerID' in data:
+            table = 'Player'
+            identifier = 'playerID'
+            original_id = data['originalPlayerID']
+            new_id = data.get('playerID')
+
+            # Mapping of positions to their specific fields
+            position_tables = {
+                'RunningBack': ['rush_att', 'rushing_yards', 'rush_touchdown', 'rec_target', 'rec_yards', 'rec_touchdowns', 'fumble'],
+                'WideReceiver': ['target', 'receptions', 'yards', 'touchdowns', 'fumble', 'kick_return', 'drops'],
+                'Quarterback': ['pass_yards', 'pass_att', 'pass_completions', 'touchdowns', 'interceptions', 'rushing_att', 'rushing_yards', 'fumbles', 'times_sacked']
+            }
+
+            # Infer position if not provided
+            position = data.get('position')
+            if not position:
+                for pos, fields in position_tables.items():
+                    if any(field in data for field in fields):
+                        position = pos
+                        break
+
+            if not position:
+                return jsonify({
+                    'success': False,
+                    'message': 'Position-specific fields detected, but position is not provided'
+                }), 400
+
+            # Update Player table
+            player_fields = {k: v for k, v in data.items() if k not in ['position', 'originalPlayerID'] and k not in position_tables.get(position, [])}
+            update_fields = {k: v for k, v in player_fields.items() if k != identifier}
+
+            if update_fields:
+                set_clause = ', '.join([f"{key} = %s" for key in update_fields.keys()])
+                sql_query = f"UPDATE {table} SET {set_clause} WHERE {identifier} = %s"
+
+                cursor.execute(sql_query, list(update_fields.values()) + [original_id])
+                conn.commit()
+
+            # Update position-specific table
+            position_fields = {k: v for k, v in data.items() if k in position_tables.get(position, [])}
+            if position_fields:
+                set_clause = ', '.join([f"{key} = %s" for key in position_fields.keys()])
+                sql_query = f"UPDATE {position} SET {set_clause} WHERE {identifier} = %s"
+
+                cursor.execute(sql_query, list(position_fields.values()) + [original_id])
+                conn.commit()
+
+            # Handle ID change
+            if new_id and new_id != original_id:
+                sql_query = f"UPDATE {table} SET {identifier} = %s WHERE {identifier} = %s"
+                cursor.execute(sql_query, [new_id, original_id])
+                conn.commit()
+
+        elif 'originalTeamID' in data:
+            table = 'Team'
+            identifier = 'teamID'
+            original_id = data['originalTeamID']
+            new_id = data.get('teamID')
+
+            # Define defense stats columns
+            defense_columns = ['sacks', 'interceptions', 'touchdowns', 'tackles_for_loss', 'total_tackles', 'stuffs']
+
+            # Separate Team and Defense fields
+            team_fields = {k: v for k, v in data.items() if k not in defense_columns and k not in ['originalTeamID']}
+            defense_fields = {k: v for k, v in data.items() if k in defense_columns}
+
+            # Update Team table
+            if team_fields:
+                set_clause = ', '.join([f"{key} = %s" for key in team_fields.keys()])
+                sql_query = f"UPDATE {table} SET {set_clause} WHERE {identifier} = %s"
+
+                cursor.execute(sql_query, list(team_fields.values()) + [original_id])
+                conn.commit()
+
+            # Update Defense table
+            if defense_fields:
+                set_clause = ', '.join([f"{key} = %s" for key in defense_fields.keys()])
+                sql_query = f"UPDATE Defense SET {set_clause} WHERE {identifier} = %s"
+
+                cursor.execute(sql_query, list(defense_fields.values()) + [original_id])
+                conn.commit()
+
+            # Handle ID change
+            if new_id and new_id != original_id:
+                sql_query = f"UPDATE {table} SET {identifier} = %s WHERE {identifier} = %s"
+                cursor.execute(sql_query, [new_id, original_id])
+                conn.commit()
+
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Neither originalPlayerID nor originalTeamID provided'
+            }), 400
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': 'Record updated successfully',
+            'updated_fields': data
+        })
+
+    except Exception as e:
+        print(f'Error: {e}')
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred while editing the data',
+            'error': str(e)
+        }), 500
+
+
+
 
 
 if __name__ == '__main__':
