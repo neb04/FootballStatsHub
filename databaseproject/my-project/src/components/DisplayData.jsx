@@ -3,20 +3,17 @@ import React, { useState, useEffect } from 'react';
 export default function DisplayData(props) {
     const { data } = props;
     const [isEditing, setIsEditing] = useState(false);
-    const [editableData, setEditableData] = useState(data ? { ...data.data } : {});
-    const [displayData, setDisplayData] = useState(data ? { ...data.data } : {});
+    const [editableData, setEditableData] = useState(data ? { ...data } : {});
+    const [displayData, setDisplayData] = useState(data ? { ...data } : {});
 
     useEffect(() => {
         if (data) {
-            setEditableData({ ...data.data });
-            setDisplayData({ ...data.data });
+            setEditableData({ ...data });
+            setDisplayData({ ...data });
         }
     }, [data]);
 
-    if (!data) {
-        console.log('No data!');
-        return null;
-    };
+    if (!data) return null;
 
     const handleEditToggle = () => {
         setIsEditing((prev) => !prev);

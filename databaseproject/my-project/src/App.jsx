@@ -30,7 +30,7 @@ function App() {
       <section className='min-h-screen flex flex-col'>
       <Header />
       <HomePage setQuery={setQuery} />
-      {data && <DisplayData data={data} />}
+      
       </section>
       <footer></footer>
     </div>

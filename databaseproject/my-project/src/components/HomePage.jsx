@@ -16,30 +16,19 @@ export default function HomePage() {
 
     const getDivisionName = (divisionID) => {
         switch (Number(divisionID)) {
-            case 1:
-                return 'NFC North';
-            case 2:
-                return 'NFC South';
-            case 3:
-                return 'NFC East';
-            case 4:
-                return 'NFC West';
-            case 5:
-                return 'AFC North';
-            case 6:
-                return 'AFC South';
-            case 7:
-                return 'AFC East';
-            case 8:
-                return 'AFC West';
-            default:
-                return '';
+            case 1: return 'NFC North';
+            case 2: return 'NFC South';
+            case 3: return 'NFC East';
+            case 4: return 'NFC West';
+            case 5: return 'AFC North';
+            case 6: return 'AFC South';
+            case 7: return 'AFC East';
+            case 8: return 'AFC West';
+            default: return '';
         }
     };
 
-    const getDivisionID = (divisionName) => {
-        return divisionMap[divisionName] || '';
-    };
+    const getDivisionID = (divisionName) => divisionMap[divisionName] || '';
 
     const [selectedTab, setSelectedTab] = useState('Team');
     const [filters, setFilters] = useState({
@@ -48,12 +37,13 @@ export default function HomePage() {
         name: '',
         divisionID: '',
         position: '',
-        revenue__gt: '',
-        revenue__lt: '',
+        revenue__gte: '',
+        revenue__lte: '',
     });
     const [searchResults, setSearchResults] = useState([]);
     const [nflTeams, setNflTeams] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedResult, setSelectedResult] = useState(null);
 
     useEffect(() => {
         const fetchTeamNames = async () => {
@@ -77,51 +67,46 @@ export default function HomePage() {
         'NFC East', 'NFC North', 'NFC South', 'NFC West'
     ];
 
-    const playerPositions = [
-        'QuarterBack', 'RunningBack', 'WideReceiver', 'Defense'
-    ];
-
-    const queryTypes = [
-        'Team', 'Player'
-    ];
+    const queryTypes = ['Team', 'Player'];
 
     const handleTabChange = (tab) => {
         setSelectedTab(tab);
-        
-        // Clear appropriate filters based on which tab is selected
+
+        // Clear appropriate filters based on the selected tab
         if (tab === 'Team') {
             setFilters(prev => ({
                 ...prev,
                 type: 'Team',
-                name: '',              // Clear player name
-                divisionID: '',        // Clear advanced filters
-                revenue__gt: '',
-                revenue__lt: ''
+                name: '',
+                divisionID: '',
+                revenue__gte: '',
+                revenue__lte: ''
             }));
         } else if (tab === 'Player') {
             setFilters(prev => ({
                 ...prev,
                 type: 'Player',
-                team_Name: '',         // Clear team selection
-                divisionID: '',        // Clear advanced filters
-                revenue__gt: '',
-                revenue__lt: ''
+                team_Name: '',
+                divisionID: '',
+                revenue__gte: '',
+                revenue__lte: ''
             }));
         } else if (tab === 'Advanced Filters') {
             setFilters(prev => ({
                 ...prev,
-                team_Name: '',         // Clear team selection
-                name: '',              // Clear player name
+                team_Name: '',
+                name: '',
             }));
         }
-        
+
         // Clear search results when switching tabs
         setSearchResults([]);
+        setSelectedResult(null);
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
+
         if (name === 'divisionID') {
             setFilters(prev => ({
                 ...prev,
@@ -142,11 +127,12 @@ export default function HomePage() {
             name: '',
             divisionID: '',
             position: '',
-            revenue__gt: '',
-            revenue__lt: ''
+            revenue__gte: '',
+            revenue__lte: ''
         });
-        setSelectedTab('Team')
+        setSelectedTab('Team');
         setSearchResults([]);
+        setSelectedResult(null);
     };
 
     const handleSearch = async () => {
@@ -155,9 +141,15 @@ export default function HomePage() {
                 params: filters,
             });
             setSearchResults(response.data);
+            setSelectedResult(null); // Clear previously selected result
         } catch (error) {
             console.error('Error fetching search results:', error);
         }
+    };
+
+    const handleResultSelect = (result) => {
+        console.log(result);
+        setSelectedResult(result);
     };
 
     return (
@@ -252,16 +244,16 @@ export default function HomePage() {
                             </select>
                             <input
                                 type="number"
-                                name="revenue__gt"
-                                value={filters.revenue__gt}
+                                name="revenue__gte"
+                                value={filters.revenue__gte}
                                 onChange={handleChange}
                                 placeholder="Minimum Revenue"
                                 className="p-3 rounded-md shadow-md w-full max-w-md"
                             />
                             <input
                                 type="number"
-                                name="revenue__lt"
-                                value={filters.revenue__lt}
+                                name="revenue__lte"
+                                value={filters.revenue__lte}
                                 onChange={handleChange}
                                 placeholder="Maximum Revenue"
                                 className="p-3 rounded-md shadow-md w-full max-w-md"
@@ -285,16 +277,24 @@ export default function HomePage() {
                 {searchResults.length > 0 ? (
                     <ul className="mt-4">
                         {searchResults.map((result, index) => (
-                            <li key={index} className="p-4 border-b border-gray-300">
-                                <p>
-                                    <strong>Team:</strong> {result.team_Name}
-                                </p>
-                                <p>
-                                    <strong>Division:</strong> {getDivisionName(result.divisionID)}
-                                </p>
-                                <p>
-                                    <strong>Revenue:</strong> ${result.revenue}
-                                </p>
+                            <li key={index} className="p-4 border-b border-gray-300 flex justify-between items-center">
+                                <div>
+                                    <p>
+                                        <strong>Team:</strong> {result.team_Name}
+                                    </p>
+                                    <p>
+                                        <strong>Division:</strong> {getDivisionName(result.divisionID)}
+                                    </p>
+                                    <p>
+                                        <strong>Revenue:</strong> ${result.revenue}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => handleResultSelect(result)}
+                                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                                >
+                                    Select
+                                </button>
                             </li>
                         ))}
                     </ul>
@@ -302,7 +302,8 @@ export default function HomePage() {
                     <p className="mt-4 text-gray-500">No results found</p>
                 )}
             </div>
-            {searchResults.length > 0 && <DisplayData data={searchResults} />}
+
+            {selectedResult && <DisplayData data={selectedResult} />}
         </main>
     );
 }

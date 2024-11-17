@@ -51,18 +51,19 @@ def query_table(table_name, filters):
             operator = '='
             if 'team_Name' in column:
                 value = value.split(" ")[-1]
-            elif '__gt' in column:
-                col_name = column.replace('__gt', '')
-                operator = '>'
-            elif '__lt' in column:
-                col_name = column.replace('__lt', '')
-                operator = '<'
             elif '__gte' in column:
                 col_name = column.replace('__gte', '')
                 operator = '>='
             elif '__lte' in column:
                 col_name = column.replace('__lte', '')
                 operator = '<='
+            elif '__gt' in column:
+                col_name = column.replace('__gt', '')
+                operator = '>'
+            elif '__lt' in column:
+                col_name = column.replace('__lt', '')
+                operator = '<'
+            
 
             if col_name not in allowed_tables[table_name]:
                 print("invalid column ", col_name)
@@ -70,11 +71,12 @@ def query_table(table_name, filters):
 
             query += f" AND {col_name} {operator} \'{value}\'"
             #params.append(value)
-        print(query)
+        print('Query: ', query)
         cursor = conn.cursor(dictionary=True)
         #cursor.execute(query, params)
         cursor.execute(query)
         results = cursor.fetchall()
+        
         cursor.close()
         conn.close()
         return results
@@ -101,8 +103,8 @@ def get_query():
     filters = request.args.to_dict()
     print(filters)
     result = query_table(filters['type'], filters)
-    print(result)
-    return jsonify(result)
+    print('result: ', result)
+    return result
 
 @app.route('/api/teamNames', methods=['GET'])
 def get_team_names():
