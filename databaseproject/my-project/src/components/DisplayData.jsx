@@ -83,9 +83,45 @@ export default function DisplayData(props) {
     
     
 
-    const handleDelete = () => {
-        console.log("Deleting data:", data);
+    const handleDelete = async () => {
+        try {
+            // Determine if we're deleting a player or a team
+            const deleteData = {};
+            if (data.playerID) {
+                deleteData.playerID = data.playerID;
+            } else if (data.teamID) {
+                deleteData.teamID = data.teamID;
+            }
+    
+            // Log the data being deleted
+            console.log("Deleting data:", deleteData);
+    
+            // Make the POST request to the delete endpoint
+            const response = await fetch('http://localhost:5000/api/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(deleteData),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            setEditableData({});
+            setDisplayData({});
+            const result = await response.json();
+            console.log("Delete successful:", result);
+    
+            // Optionally, handle UI updates or notifications here
+            alert("Deletion successful!");
+            
+        } catch (error) {
+            console.error("Error deleting data:", error);
+            alert("Failed to delete. Please try again.");
+        }
     };
+    
 
     const handleChange = (key, value) => {
         setEditableData((prevData) => ({

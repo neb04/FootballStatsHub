@@ -135,7 +135,6 @@ def get_player():
     except Exception as e:
         print(f'Error: {e}')
         return jsonify({'error': 'Error while fetching data'}), 500
-
     
 
 @app.route('/api', methods=['GET'])
@@ -293,6 +292,47 @@ def edit_data():
             'error': str(e)
         }), 500
 
+@app.route('/api/delete', methods=['POST'])
+def delete_entry():
+    try:
+        data = request.get_json()
+        print(data)
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'No data provided'
+            }), 400
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = 'DELETE FROM '
+        if 'playerID' in data:
+            identifier = 'playerID'
+            identifierval = data[identifier]
+            tableName = 'Player'
+        elif 'teamID' in data:
+            identifier = 'teamID'
+            identifierval = data[identifier]
+            tableName = 'Team'
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Neither playerID nor teamID provided'
+            }), 400
+        query += f'{tableName} WHERE {identifier} = {identifierval}'
+        cursor.execute(query)
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'message': f'Record with {identifier} {identifierval} deleted successfully'
+        })
+
+    except Error as e:
+        print(f'Error: {e}')
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred while deleting the record',
+            'error': str(e)
+        }), 500
 
 
 
