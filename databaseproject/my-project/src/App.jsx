@@ -3,8 +3,6 @@ import HomePage from './components/HomePage'
 import Header from './components/Header'
 import DisplayData from './components/DisplayData';
 import { teams, players } from './utils/script';
-
-
 function App() {
   const [query, setQuery] = useState("") //Initial user input
   const [data, setData] = useState(null);

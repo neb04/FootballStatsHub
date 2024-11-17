@@ -41,13 +41,17 @@ def query_table(table_name, filters):
     try:
         query = f"SELECT * FROM {table_name} WHERE 1=1"
         params = []
-
+        print(filters)
         # Dynamically construct query from filters
         for column, value in filters.items():
+            if value=='':
+                continue
+
             col_name = column
             operator = '='
-
-            if '__gt' in column:
+            if 'team_Name' in column:
+                value = value.split(" ")[-1]
+            elif '__gt' in column:
                 col_name = column.replace('__gt', '')
                 operator = '>'
             elif '__lt' in column:
@@ -61,13 +65,15 @@ def query_table(table_name, filters):
                 operator = '<='
 
             if col_name not in allowed_tables[table_name]:
+                print("invalid column ", col_name)
                 continue  # Skip invalid columns
 
-            query += f" AND {col_name} {operator} %s"
-            params.append(value)
+            query += f" AND {col_name} {operator} \'{value}\'"
+            #params.append(value)
         print(query)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(query, params)
+        #cursor.execute(query, params)
+        cursor.execute(query)
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -89,6 +95,34 @@ def get_player():
     filters = request.args.to_dict()
     result = query_table('Player', filters)
     return jsonify(result)
+
+@app.route('/api', methods=['GET'])
+def get_query():
+    filters = request.args.to_dict()
+    print(filters)
+    result = query_table(filters['type'], filters)
+    print(result)
+    return jsonify(result)
+
+@app.route('/api/teamNames', methods=['GET'])
+def get_team_names():
+    conn = get_db_connection()
+    query = "SELECT location, team_Name FROM Team"
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        results = cursor.fetchall()
+        
+        # Transform the results into the desired format
+        team_names = [f"{team['location']} {team['team_Name']}" for team in results]
+        
+        cursor.close()
+        conn.close()
+        return team_names
+    except Error as e:
+        print(f"Error querying table Team: {e}")
+        return {'error': 'Failed to query table'}, 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

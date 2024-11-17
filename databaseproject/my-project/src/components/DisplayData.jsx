@@ -13,7 +13,10 @@ export default function DisplayData(props) {
         }
     }, [data]);
 
-    if (!data) return null;
+    if (!data) {
+        console.log('No data!');
+        return null;
+    };
 
     const handleEditToggle = () => {
         setIsEditing((prev) => !prev);

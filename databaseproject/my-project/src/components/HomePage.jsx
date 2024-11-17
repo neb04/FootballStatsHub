@@ -1,26 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import DisplayData from './DisplayData';
 
 export default function HomePage() {
+    // Division mapping utilities remain the same
+    const divisionMap = {
+        'NFC North': 1,
+        'NFC South': 2,
+        'NFC East': 3,
+        'NFC West': 4,
+        'AFC North': 5,
+        'AFC South': 6,
+        'AFC East': 7,
+        'AFC West': 8
+    };
+
+    const getDivisionName = (divisionID) => {
+        switch (Number(divisionID)) {
+            case 1:
+                return 'NFC North';
+            case 2:
+                return 'NFC South';
+            case 3:
+                return 'NFC East';
+            case 4:
+                return 'NFC West';
+            case 5:
+                return 'AFC North';
+            case 6:
+                return 'AFC South';
+            case 7:
+                return 'AFC East';
+            case 8:
+                return 'AFC West';
+            default:
+                return '';
+        }
+    };
+
+    const getDivisionID = (divisionName) => {
+        return divisionMap[divisionName] || '';
+    };
+
     const [selectedTab, setSelectedTab] = useState('Team');
     const [filters, setFilters] = useState({
-        teamName: '',
-        division: '',
+        type: 'Team',
+        team_Name: '',
+        name: '',
+        divisionID: '',
         position: '',
-        revenue__gt: '', // Filter for revenue greater than
-        revenue__lt: '', // Filter for revenue less than
+        revenue__gt: '',
+        revenue__lt: '',
     });
     const [searchResults, setSearchResults] = useState([]);
+    const [nflTeams, setNflTeams] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const nflTeams = [
-        'Arizona Cardinals', 'Atlanta Falcons', 'Baltimore Ravens', 'Buffalo Bills', 'Carolina Panthers',
-        'Chicago Bears', 'Cincinnati Bengals', 'Cleveland Browns', 'Dallas Cowboys', 'Denver Broncos',
-        'Detroit Lions', 'Green Bay Packers', 'Houston Texans', 'Indianapolis Colts', 'Jacksonville Jaguars',
-        'Kansas City Chiefs', 'Las Vegas Raiders', 'Los Angeles Chargers', 'Los Angeles Rams', 'Miami Dolphins',
-        'Minnesota Vikings', 'New England Patriots', 'New Orleans Saints', 'New York Giants', 'New York Jets',
-        'Philadelphia Eagles', 'Pittsburgh Steelers', 'San Francisco 49ers', 'Seattle Seahawks',
-        'Tampa Bay Buccaneers', 'Tennessee Titans', 'Washington Commanders'
-    ];
+    useEffect(() => {
+        const fetchTeamNames = async () => {
+            try {
+                setIsLoading(true);
+                const response = await axios.get('http://localhost:5000/api/teamNames');
+                setNflTeams(response.data);
+            } catch (error) {
+                console.error('Error fetching team names:', error);
+                setNflTeams([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTeamNames();
+    }, []);
 
     const nflDivisions = [
         'AFC East', 'AFC North', 'AFC South', 'AFC West',
@@ -28,34 +79,83 @@ export default function HomePage() {
     ];
 
     const playerPositions = [
-        'Qb', 'Rb', 'Wr', 'Te', 'Ol', 'Cb', 'S', 'Lb', 'Dl', 'K', 'P'
+        'QuarterBack', 'RunningBack', 'WideReceiver', 'Defense'
     ];
+
+    const queryTypes = [
+        'Team', 'Player'
+    ];
+
+    const handleTabChange = (tab) => {
+        setSelectedTab(tab);
+        
+        // Clear appropriate filters based on which tab is selected
+        if (tab === 'Team') {
+            setFilters(prev => ({
+                ...prev,
+                type: 'Team',
+                name: '',              // Clear player name
+                divisionID: '',        // Clear advanced filters
+                revenue__gt: '',
+                revenue__lt: ''
+            }));
+        } else if (tab === 'Player') {
+            setFilters(prev => ({
+                ...prev,
+                type: 'Player',
+                team_Name: '',         // Clear team selection
+                divisionID: '',        // Clear advanced filters
+                revenue__gt: '',
+                revenue__lt: ''
+            }));
+        } else if (tab === 'Advanced Filters') {
+            setFilters(prev => ({
+                ...prev,
+                team_Name: '',         // Clear team selection
+                name: '',              // Clear player name
+            }));
+        }
+        
+        // Clear search results when switching tabs
+        setSearchResults([]);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFilters({
-            ...filters,
-            [name]: value
-        });
+        
+        if (name === 'divisionID') {
+            setFilters(prev => ({
+                ...prev,
+                divisionID: getDivisionID(value)
+            }));
+        } else {
+            setFilters(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     const handleReset = () => {
         setFilters({
-            teamName: '',
-            division: '',
+            type: 'Team',
+            team_Name: '',
+            name: '',
+            divisionID: '',
             position: '',
             revenue__gt: '',
             revenue__lt: ''
         });
+        setSelectedTab('Team')
         setSearchResults([]);
     };
 
     const handleSearch = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/team', {
-                params: filters, // Pass filters directly
+            const response = await axios.get('http://localhost:5000/api', {
+                params: filters,
             });
-            setSearchResults(response.data); // Store the results in state
+            setSearchResults(response.data);
         } catch (error) {
             console.error('Error fetching search results:', error);
         }
@@ -74,26 +174,20 @@ export default function HomePage() {
 
             <div className="flex items-center justify-center gap-2 mt-4">
                 <button
-                    onClick={() => setSelectedTab('Team')}
-                    className={`px-4 py-2 rounded-full ${
-                        selectedTab === 'Team' ? 'bg-red-500 text-white' : 'bg-gray-200'
-                    }`}
+                    onClick={() => handleTabChange('Team')}
+                    className={`px-4 py-2 rounded-full ${selectedTab === 'Team' ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
                 >
                     Team
                 </button>
                 <button
-                    onClick={() => setSelectedTab('Player')}
-                    className={`px-4 py-2 rounded-full ${
-                        selectedTab === 'Player' ? 'bg-red-500 text-white' : 'bg-gray-200'
-                    }`}
+                    onClick={() => handleTabChange('Player')}
+                    className={`px-4 py-2 rounded-full ${selectedTab === 'Player' ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
                 >
                     Player
                 </button>
                 <button
-                    onClick={() => setSelectedTab('Advanced Filters')}
-                    className={`px-4 py-2 rounded-full ${
-                        selectedTab === 'Advanced Filters' ? 'bg-red-500 text-white' : 'bg-gray-200'
-                    }`}
+                    onClick={() => handleTabChange('Advanced Filters')}
+                    className={`px-4 py-2 rounded-full ${selectedTab === 'Advanced Filters' ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
                 >
                     Advanced Filters
                 </button>
@@ -101,26 +195,30 @@ export default function HomePage() {
 
             <div className="my-4">
                 {selectedTab === 'Team' ? (
-                    <select
-                        name="teamName"
-                        value={filters.teamName}
-                        onChange={handleChange}
-                        className="p-3 rounded-md shadow-md w-full max-w-md"
-                    >
-                        <option value="">Select a Team</option>
-                        {nflTeams.map((team, index) => (
-                            <option key={index} value={team}>
-                                {team}
-                            </option>
-                        ))}
-                    </select>
+                    isLoading ? (
+                        <div>Loading teams...</div>
+                    ) : (
+                        <select
+                            name="team_Name"
+                            value={filters.team_Name}
+                            onChange={handleChange}
+                            className="p-3 rounded-md shadow-md w-full max-w-md"
+                        >
+                            <option value="">Select a Team</option>
+                            {nflTeams.map((team, index) => (
+                                <option key={index} value={team}>
+                                    {team}
+                                </option>
+                            ))}
+                        </select>
+                    )
                 ) : selectedTab === 'Player' ? (
                     <input
                         type="text"
-                        name="position"
-                        value={filters.position}
+                        name="name"
+                        value={filters.name}
                         onChange={handleChange}
-                        placeholder="Enter Player Position"
+                        placeholder="Enter Player Name"
                         className="p-3 rounded-md shadow-md w-full max-w-md"
                     />
                 ) : (
@@ -128,8 +226,21 @@ export default function HomePage() {
                         <h2 className="text-xl font-semibold mb-4">Advanced Filters</h2>
                         <div className="flex flex-col gap-4">
                             <select
-                                name="division"
-                                value={filters.division}
+                                name="type"
+                                value={filters.type}
+                                onChange={handleChange}
+                                className="p-3 rounded-md shadow-md w-full max-w-md"
+                            >
+                                <option value="">Select Query Type</option>
+                                {queryTypes.map((type, index) => (
+                                    <option key={index} value={type}>
+                                        {type}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                name="divisionID"
+                                value={getDivisionName(filters.divisionID)}
                                 onChange={handleChange}
                                 className="p-3 rounded-md shadow-md w-full max-w-md"
                             >
@@ -177,10 +288,10 @@ export default function HomePage() {
                         {searchResults.map((result, index) => (
                             <li key={index} className="p-4 border-b border-gray-300">
                                 <p>
-                                    <strong>Team:</strong> {result.team_name}
+                                    <strong>Team:</strong> {result.team_Name}
                                 </p>
                                 <p>
-                                    <strong>Division:</strong> {result.division}
+                                    <strong>Division:</strong> {getDivisionName(result.divisionID)}
                                 </p>
                                 <p>
                                     <strong>Revenue:</strong> ${result.revenue}
@@ -192,6 +303,7 @@ export default function HomePage() {
                     <p className="mt-4 text-gray-500">No results found</p>
                 )}
             </div>
+            {searchResults.length > 0 && <DisplayData data={searchResults} />}
         </main>
     );
 }
