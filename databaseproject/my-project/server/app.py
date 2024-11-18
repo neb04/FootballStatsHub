@@ -41,7 +41,7 @@ def query_table(table_name, filters):
     try:
         query = f"SELECT * FROM {table_name} "
         if filters['type']=='Team':
-            query += "JOIN Defense ON Defense.teamID = Team.teamID "
+            query += "JOIN Defense ON Defense.teamID = Team.teamID JOIN TeamRecord ON TeamRecord.teamID = Team.teamID "
         if filters['type']=='Player':
             if filters['position']=='Quarterback':
                 query += " JOIN Quarterback ON Quarterback.playerID = Player.playerID "
@@ -84,7 +84,7 @@ def query_table(table_name, filters):
             #params.append(value)
         
         print('Query: ', query)
-        input()
+        #input()
         cursor = conn.cursor(dictionary=True)
         #cursor.execute(query, params)
         cursor.execute(query)
@@ -150,7 +150,7 @@ def get_player():
 def get_query():
     filters = request.args.to_dict()
     print(filters)
-    input()
+    #input()
     result = query_table(filters['type'], filters)
     print('result: ', result)
     return result
@@ -290,10 +290,12 @@ def edit_data():
 
             # Define defense stats columns
             defense_columns = ['sacks', 'interceptions', 'touchdowns', 'tackles_for_loss', 'total_tackles', 'stuffs']
+            record_columns = ['standing', 'record']
 
             # Separate Team and Defense fields
             team_fields = {k: v for k, v in data.items() if k not in defense_columns and k not in ['originalTeamID']}
             defense_fields = {k: v for k, v in data.items() if k in defense_columns}
+            record_fields = {k: v for k, v in data.items() if k in record_columns}
 
             # Update Team table
             if team_fields:
@@ -309,6 +311,14 @@ def edit_data():
                 sql_query = f"UPDATE Defense SET {set_clause} WHERE {identifier} = %s"
 
                 cursor.execute(sql_query, list(defense_fields.values()) + [original_id])
+                conn.commit()
+
+            # Update Record Table
+            if record_fields:
+                set_clause = ', '.join([f"{key} = %s" for key in record_fields.keys()])
+                sql_query = f"UPDATE TeamRecord SET {set_clause} WHERE {identifier} = %s"
+
+                cursor.execute(sql_query, list(record_fields.values()) + [original_id])
                 conn.commit()
 
             # Handle ID change
@@ -382,8 +392,66 @@ def delete_entry():
             'error': str(e)
         }), 500
 
+@app.route('/api/insert/team', methods=['POST'])
+def insert_team():
+    try:
+        data = request.get_json()
+        print(data)
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'No data provided'
+            }), 400
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = 'DELETE FROM '
+        if 'playerID' in data:
+            identifier = 'playerID'
+            identifierval = data[identifier]
+            tableName = 'Player'
+        elif 'teamID' in data:
+            identifier = 'teamID'
+            identifierval = data[identifier]
+            tableName = 'Team'
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Neither playerID nor teamID provided'
+            }), 400
+        query += f'{tableName} WHERE {identifier} = {identifierval}'
+        cursor.execute(query)
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'message': f'Record with {identifier} {identifierval} deleted successfully'
+        })
 
+    except Error as e:
+        print(f'Error: {e}')
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred while deleting the record',
+            'error': str(e)
+        }), 500
 
+@app.route('/api/insert/player', methods=['POST'])
+def insert_player():
+    try:
+        data = request.get_json()
+        print(data)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Record inserted successfully!'
+        })
+
+    except Error as e:
+        print(f'Error: {e}')
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred while deleting the record',
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

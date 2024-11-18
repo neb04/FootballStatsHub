@@ -236,6 +236,38 @@ export default function HomePage() {
         setInsertType(value);
     };
 
+    const handleInsert = async () => {
+        try {
+            let endpoint = '';
+            let data = {};
+    
+            if (insertType === 'Team') {
+                endpoint = 'http://localhost:5000/api/insert/team';
+                data = insertTeamVals;
+            } else if (insertType === 'Player') {
+                endpoint = 'http://localhost:5000/api/insert/player';
+                data = insertPlayerVals;
+            } else {
+                console.error('Invalid insert type selected');
+                return;
+            }
+    
+            const response = await axios.post(endpoint, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.status === 200) {
+                alert('Data inserted successfully');
+            } else {
+                console.error('Failed to insert data:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error inserting data:', error);
+            alert('An error occurred while inserting data.');
+        }
+    };
 
     const handleReset = () => {
         setFilters({
@@ -406,8 +438,8 @@ export default function HomePage() {
                             {filters.type === "Player" && (
                                 <>
                                     <select
-                                        name="team_Name"
-                                        value={filters.team_Name}
+                                        name="team_ID"
+                                        value={filters.team_ID}
                                         onChange={handleChange}
                                         className="p-3 rounded-md shadow-md w-full max-w-md"
                                     >
@@ -659,6 +691,9 @@ export default function HomePage() {
                                     />
                                 </>
                             )}
+                            <button onClick={handleInsert} className="px-4 py-2 bg-green-600 text-white rounded-md">
+                                Insert
+                            </button>
                         </div>
                     </div>
                 )}
@@ -735,7 +770,7 @@ export default function HomePage() {
                         ) : null}
                     </div>
                     <button
-                        onClick={() => handleResultSelect(result)}
+                        onClick={(handleInsert) => handleResultSelect(result)}
                         className="px-4 py-2 bg-blue-500 text-white rounded-md"
                     >
                         Select
