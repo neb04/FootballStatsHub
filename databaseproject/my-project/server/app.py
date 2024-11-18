@@ -293,7 +293,7 @@ def edit_data():
             record_columns = ['standing', 'record']
 
             # Separate Team and Defense fields
-            team_fields = {k: v for k, v in data.items() if k not in defense_columns and k not in ['originalTeamID']}
+            team_fields = {k: v for k, v in data.items() if k not in defense_columns and k not in record_columns and k not in ['originalTeamID']}
             defense_fields = {k: v for k, v in data.items() if k in defense_columns}
             record_fields = {k: v for k, v in data.items() if k in record_columns}
 
