@@ -6,14 +6,14 @@ Also ensure you have axios, react, and node.js as they are necessary for running
 
 To install the necessary Python libraries, navigate to the "server" directory and run these commands from the command prompt.
 
-pip install Flask
-pip install flask-cors
-pip install mysql-connector-python
-pip install python-dotenv
+- pip install Flask
+- pip install flask-cors
+- pip install mysql-connector-python
+- pip install python-dotenv
 
 Next navigate "my-project" folder from your command prompt. And run the commands listed below:
 
-npm install
-npm install axios //If you are missing axios run this
+- npm install
+- npm install axios //If you are missing axios run this
 
 npm run dev //This will host the web application on your local network allowing you to access it.
