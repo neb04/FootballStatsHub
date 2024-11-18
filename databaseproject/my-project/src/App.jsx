@@ -1,10 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import HomePage from './components/HomePage'
 import Header from './components/Header'
-import DisplayData from './components/DisplayData';
 import { teams, players } from './utils/script';
-
-
 function App() {
   const [query, setQuery] = useState("") //Initial user input
   const [data, setData] = useState(null);
@@ -32,7 +29,7 @@ function App() {
       <section className='min-h-screen flex flex-col'>
       <Header />
       <HomePage setQuery={setQuery} />
-      {data && <DisplayData data={data} />}
+      
       </section>
       <footer></footer>
     </div>
