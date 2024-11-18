@@ -31,6 +31,7 @@ export default function HomePage() {
     const getDivisionID = (divisionName) => divisionMap[divisionName] || '';
 
     const [selectedTab, setSelectedTab] = useState('Team');
+    const [insertType, setInsertType] = useState('Team');
     const [filters, setFilters] = useState({
         type: 'Team',
         team_Name: '',
@@ -39,11 +40,79 @@ export default function HomePage() {
         position: '',
         revenue__gte: '',
         revenue__lte: '',
+        age__lte: '',
+        age__gte: '',
+    });
+    const [insertPlayerVals, setInsertPlayerVals] = useState({
+        playerID : '',
+        f_Name :'',
+        l_Name :'',
+        player_Number : '',
+        team_ID :'',
+        position :'',
+        status :'',
+        height_in: '',
+        weight : '',
+        starting_Year:  '',
+        age: '',
+    });
+    const [insertTeamVals, setInsertTeamVals] = useState({
+        teamID:'',
+        team_Name:'',
+        coachID:'',
+        divisionID:'',
+        location:'',
+        ownerID:'',
+        general_manager:'',
+        revenue:'',
+        team_color:''
     });
     const [searchResults, setSearchResults] = useState([]);
     const [nflTeams, setNflTeams] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedResult, setSelectedResult] = useState(null);
+    const [teamMap, setTeamMap] = useState({});
+    const [teamIDMap, setTeamIDMap] = useState({});
+
+    useEffect(() => {
+        // Function to fetch team map from the API
+        const fetchTeamMap = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/teamMap');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch team map: ' + response.statusText);
+                }
+                const data = await response.json();
+                setTeamMap(data); // Update state with the fetched team map
+                console.log(teamMap);
+            } catch (error) {
+                console.error('Error fetching team map:', error);
+                setTeamMap({}); // Set to empty object in case of error
+            }
+        };
+
+        fetchTeamMap();
+    }, []); // Empty dependency array to run only once on mount
+
+    useEffect(() => {
+        // Function to fetch team map from the API
+        const fetchTeamIDMap = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/teamIDMap');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch team map: ' + response.statusText);
+                }
+                const data = await response.json();
+                setTeamIDMap(data); // Update state with the fetched team map
+                console.log('map: ',teamIDMap);
+            } catch (error) {
+                console.error('Error fetching team map:', error);
+                setTeamIDMap({}); // Set to empty object in case of error
+            }
+        };
+
+        fetchTeamIDMap();
+    }, []); // Empty dependency array to run only once on mount
 
     useEffect(() => {
         const fetchTeamNames = async () => {
@@ -68,6 +137,7 @@ export default function HomePage() {
     ];
 
     const queryTypes = ['Team', 'Player'];
+    const positions = ['offense','defense','Quarterback','RunningBack','WideReceiver'];
 
     const handleTabChange = (tab) => {
         setSelectedTab(tab);
@@ -135,6 +205,38 @@ export default function HomePage() {
         }
     };
 
+    const handleInsertChange = (e) => {
+        const { name, value } = e.target;
+        if(insertType === 'Team') {
+            setInsertTeamVals(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        } else if(insertType === 'Player') {
+            if(name=='team_ID') {
+                setInsertPlayerVals(prev => ({
+                    ...prev,
+                    [name]: teamMap[value]
+                }));
+                console.log('changed: ', name, ' ', teamMap[value]);
+            } else {
+                setInsertPlayerVals(prev => ({
+                    ...prev,
+                    [name]: value
+                }));
+                console.log('changed: ', name, ' ', value);
+            }
+        }
+        
+    };
+
+    const handleInsertTypeChange = (e) => {
+        const { name, value } = e.target;
+
+        setInsertType(value);
+    };
+
+
     const handleReset = () => {
         setFilters({
             type: 'Team',
@@ -143,7 +245,9 @@ export default function HomePage() {
             divisionID: '',
             position: '',
             revenue__gte: '',
-            revenue__lte: ''
+            revenue__lte: '',
+            age__lte: '',
+            age__gte: ''
         });
         setSelectedTab('Team');
         setSearchResults([]);
@@ -209,6 +313,12 @@ export default function HomePage() {
                 >
                     Advanced Filters
                 </button>
+                <button
+                    onClick={() => handleTabChange('Insert')}
+                    className={`px-4 py-2 rounded-full ${selectedTab === 'Insert' ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
+                >
+                    Insert
+                </button>
             </div>
 
             <div className="my-4">
@@ -239,10 +349,11 @@ export default function HomePage() {
                         placeholder="Enter Player Name"
                         className="p-3 rounded-md shadow-md w-full max-w-md"
                     />
-                ) : (
+                ) : selectedTab === 'Advanced Filters' ? (
                     <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-lg mx-auto">
                         <h2 className="text-xl font-semibold mb-4">Advanced Filters</h2>
                         <div className="flex flex-col gap-4">
+                            {/* Dropdown for Query Type */}
                             <select
                                 name="type"
                                 value={filters.type}
@@ -256,35 +367,298 @@ export default function HomePage() {
                                     </option>
                                 ))}
                             </select>
+
+                            {/* Conditionally Render Filters Based on Type */}
+                            {filters.type === "Team" && (
+                                <>
+                                    <select
+                                        name="divisionID"
+                                        value={getDivisionName(filters.divisionID)}
+                                        onChange={handleChange}
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    >
+                                        <option value="">Select a Division</option>
+                                        {nflDivisions.map((division, index) => (
+                                            <option key={index} value={division}>
+                                                {division}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        type="number"
+                                        name="revenue__gte"
+                                        value={filters.revenue__gte}
+                                        onChange={handleChange}
+                                        placeholder="Minimum Revenue"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="revenue__lte"
+                                        value={filters.revenue__lte}
+                                        onChange={handleChange}
+                                        placeholder="Maximum Revenue"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                </>
+                            )}
+
+                            {filters.type === "Player" && (
+                                <>
+                                    <select
+                                        name="team_Name"
+                                        value={filters.team_Name}
+                                        onChange={handleChange}
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    >
+                                        <option value="">Select a Team</option>
+                                        {nflTeams.map((team, index) => (
+                                            <option key={index} value={team}>
+                                                {team}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        name="position"
+                                        value={filters.position}
+                                        onChange={handleChange}
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    >
+                                        <option value="">Select a Position</option>
+                                        {positions.map((position, index) => (
+                                            <option key={index} value={position}>
+                                                {position}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        type="number"
+                                        name="age__gte"
+                                        value={filters.age__gte}
+                                        onChange={handleChange}
+                                        placeholder="Minimum Age"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="age__lte"
+                                        value={filters.age__lte}
+                                        onChange={handleChange}
+                                        placeholder="Maximum Age"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-lg mx-auto">
+                        <h2 className="text-xl font-semibold mb-4">Insert</h2>
+                        <div className="flex flex-col gap-4">
+                            {/* Dropdown for Query Type */}
                             <select
-                                name="divisionID"
-                                value={getDivisionName(filters.divisionID)}
-                                onChange={handleChange}
+                                name="insertType"
+                                value={insertType}
+                                onChange={handleInsertTypeChange}
                                 className="p-3 rounded-md shadow-md w-full max-w-md"
                             >
-                                <option value="">Select a Division</option>
-                                {nflDivisions.map((division, index) => (
-                                    <option key={index} value={division}>
-                                        {division}
+                                <option value="">Select Insert Type</option>
+                                {queryTypes.map((type, index) => (
+                                    <option key={index} value={type}>
+                                        {type}
                                     </option>
                                 ))}
                             </select>
-                            <input
-                                type="number"
-                                name="revenue__gte"
-                                value={filters.revenue__gte}
-                                onChange={handleChange}
-                                placeholder="Minimum Revenue"
-                                className="p-3 rounded-md shadow-md w-full max-w-md"
-                            />
-                            <input
-                                type="number"
-                                name="revenue__lte"
-                                value={filters.revenue__lte}
-                                onChange={handleChange}
-                                placeholder="Maximum Revenue"
-                                className="p-3 rounded-md shadow-md w-full max-w-md"
-                            />
+
+                            {/* Conditionally Render Filters Based on Type 
+                            teamID:'',
+                            team_Name:'',
+                            coachID:'',
+                            divisionID:'',
+                            location:'',
+                            ownerID:'',
+                            general_manager:'',
+                            revenue:'',
+                            team_color:''
+                            */}
+                            {insertType === "Team" && (
+                                <>
+                                    <input
+                                        type="number"
+                                        name="teamID"
+                                        value={insertTeamVals.teamID}
+                                        onChange={handleInsertChange}
+                                        placeholder="Team ID"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="team_Name"
+                                        value={insertTeamVals.team_Name}
+                                        onChange={handleInsertChange}
+                                        placeholder="Team Name"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="coachID"
+                                        value={insertTeamVals.coachID}
+                                        onChange={handleInsertChange}
+                                        placeholder="Coach"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <select
+                                        name="divisionID"
+                                        value={insertTeamVals.divisionID}
+                                        onChange={handleInsertChange}
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    >
+                                        <option value="">Select a Division</option>
+                                        {nflDivisions.map((division, index) => (
+                                            <option key={index} value={divisionMap[division]}>
+                                                {division}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        type="text"
+                                        name="location"
+                                        value={insertTeamVals.location}
+                                        onChange={handleInsertChange}
+                                        placeholder="Location"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="ownerID"
+                                        value={insertTeamVals.ownerID}
+                                        onChange={handleInsertChange}
+                                        placeholder="Owner"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="general_manager"
+                                        value={insertTeamVals.general_manager}
+                                        onChange={handleInsertChange}
+                                        placeholder="General Manager"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="Revenue"
+                                        value={insertTeamVals.revenue}
+                                        onChange={handleInsertChange}
+                                        placeholder="Revenue"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="team_color"
+                                        value={insertTeamVals.team_color}
+                                        onChange={handleInsertChange}
+                                        placeholder="Team Color"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    
+                                    
+                                </>
+                            )}
+                            {/*playerID f_Name l_Name player_Number team_ID position status height_in weight starting_Year age */}
+                            {insertType === "Player" && (
+                                <>
+                                    <input
+                                        type="number"
+                                        name="playerID"
+                                        value={insertPlayerVals.playerID}
+                                        onChange={handleInsertChange}
+                                        placeholder="Player ID"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="f_Name"
+                                        value={insertPlayerVals.f_Name}
+                                        onChange={handleInsertChange}
+                                        placeholder="First Name"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="text"
+                                        name="l_Name"
+                                        value={insertPlayerVals.l_Name}
+                                        onChange={handleInsertChange}
+                                        placeholder="Last Name"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="player_Number"
+                                        value={insertPlayerVals.player_Number}
+                                        onChange={handleInsertChange}
+                                        placeholder="Player Number"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <select
+                                        name="team_ID"
+                                        value={teamIDMap[insertPlayerVals.team_ID]}
+                                        onChange={handleInsertChange}
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    >
+                                        <option value="">Select a Team</option>
+                                        {nflTeams.map((team, index) => (
+                                            <option key={index} value={team}>
+                                                {team}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        name="position"
+                                        value={insertPlayerVals.position}
+                                        onChange={handleInsertChange}
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    >
+                                        <option value="">Select a Position</option>
+                                        {positions.map((position, index) => (
+                                            <option key={index} value={position}>
+                                                {position}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        type="number"
+                                        name="height_in"
+                                        value={insertPlayerVals.height_in}
+                                        onChange={handleChange}
+                                        placeholder="Height (in)"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="weight"
+                                        value={insertPlayerVals.weight}
+                                        onChange={handleChange}
+                                        placeholder="Weight"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="starting_Year"
+                                        value={insertPlayerVals.starting_Year}
+                                        onChange={handleChange}
+                                        placeholder="Starting Year"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                    <input
+                                        type="number"
+                                        name="age"
+                                        value={insertPlayerVals.age}
+                                        onChange={handleChange}
+                                        placeholder="Age"
+                                        className="p-3 rounded-md shadow-md w-full max-w-md"
+                                    />
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
@@ -330,6 +704,32 @@ export default function HomePage() {
                                 </p>
                                 <p>
                                     <strong>Player Number:</strong> {result.player_Number}
+                                </p>
+                            </>
+                        ) : filters.type == 'Team' ? (
+                            // Display Team data
+                            <>
+                                <p>
+                                    <strong>Team:</strong> {result.team_Name}
+                                </p>
+                                <p>
+                                    <strong>Division:</strong> {getDivisionName(result.divisionID)}
+                                </p>
+                                <p>
+                                    <strong>Revenue:</strong> ${result.revenue}
+                                </p>
+                            </>
+                        ) : filters.type == 'Player' ? (
+                            // Display Player data
+                            <>
+                                <p>
+                                    <strong>Name:</strong> {result.f_Name + ' ' + result.l_Name}
+                                </p>
+                                <p>
+                                    <strong>Team:</strong> {result.location + ' ' + result.team_Name}
+                                </p>
+                                <p>
+                                    <strong>Age:</strong> {result.age}
                                 </p>
                             </>
                         ) : null}

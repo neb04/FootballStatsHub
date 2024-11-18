@@ -32,7 +32,7 @@ def query_table(table_name, filters):
     # Define allowed tables and columns to prevent SQL injection
     allowed_tables = {
         'Team': ['teamID', 'team_Name', 'coachID', 'divisionID', 'location', 'ownerID', 'general_manager', 'revenue', 'team_color'],
-        'Player': ['playerID', 'f_Name', 'l_Name', 'player_Number', 'team_ID', 'position', 'status', 'height_in', 'weight', 'starting_Year', 'age']
+        'Player': ['playerID', 'f_Name', 'l_Name', 'player_Number', 'team_ID', 'position', 'status', 'height_in', 'weight', 'starting_Year', 'age', 'team_Name']
     }
 
     if table_name not in allowed_tables:
@@ -42,6 +42,13 @@ def query_table(table_name, filters):
         query = f"SELECT * FROM {table_name} "
         if filters['type']=='Team':
             query += "JOIN Defense ON Defense.teamID = Team.teamID "
+        if filters['type']=='Player':
+            if filters['position']=='Quarterback':
+                query += " JOIN Quarterback ON Quarterback.playerID = Player.playerID "
+            elif filters['position']=='RunningBack':
+                query += " JOIN RunningBack ON RunningBack.playerID = Player.playerID "
+            elif filters['position']=='WideReceiver':
+                query += " JOIN WideReceiver ON WideReceiver.playerID = Player.playerID "
         query += "WHERE 1=1 "
         params = []
         print(filters)
@@ -54,6 +61,7 @@ def query_table(table_name, filters):
             operator = '='
             if 'team_Name' in column:
                 value = value.split(" ")[-1]
+
             elif '__gte' in column:
                 col_name = column.replace('__gte', '')
                 operator = '>='
@@ -76,6 +84,7 @@ def query_table(table_name, filters):
             #params.append(value)
         
         print('Query: ', query)
+        input()
         cursor = conn.cursor(dictionary=True)
         #cursor.execute(query, params)
         cursor.execute(query)
@@ -141,9 +150,48 @@ def get_player():
 def get_query():
     filters = request.args.to_dict()
     print(filters)
+    input()
     result = query_table(filters['type'], filters)
     print('result: ', result)
     return result
+
+@app.route('/api/teamMap', methods=['GET'])
+def get_team_map():
+    conn = get_db_connection()
+    query = "SELECT location, team_Name, teamID FROM Team"
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        results = cursor.fetchall()
+        
+        # Transform the results into the desired format
+        team_map = {f"{row['location']} {row['team_Name']}": row['teamID'] for row in results}
+        print(team_map)
+        cursor.close()
+        conn.close()
+        return team_map
+    except Error as e:
+        print(f"Error querying table Team: {e}")
+        return {'error': 'Failed to query table'}, 500
+
+@app.route('/api/teamIDMap', methods=['GET'])
+def get_team__ID_map():
+    conn = get_db_connection()
+    query = "SELECT location, team_Name, teamID FROM Team"
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        results = cursor.fetchall()
+        
+        # Transform the results into the desired format
+        team_map = {row['teamID']: f"{row['location']} {row['team_Name']}" for row in results}
+        print(team_map)
+        cursor.close()
+        conn.close()
+        return team_map
+    except Error as e:
+        print(f"Error querying table Team: {e}")
+        return {'error': 'Failed to query table'}, 500
 
 @app.route('/api/teamNames', methods=['GET'])
 def get_team_names():

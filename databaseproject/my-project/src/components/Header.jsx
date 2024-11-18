@@ -9,9 +9,9 @@ export default function Header() {
             </a>
             
             <div className='gap-4 flex items-center'>
-                <a href="/" className='flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 bg-white shadow-md'>
-                    <p>New</p>
-                    <i className="fa-solid fa-plus"></i>
+                <a href="https://www.google.com/" className='flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 bg-white shadow-md'>
+                    <p>Quit</p>
+                    <i className="fa-solid"></i>
                 </a>
             </div>
         </header>
