@@ -32,17 +32,18 @@ def query_table(table_name, filters):
     # Define allowed tables and columns to prevent SQL injection
     allowed_tables = {
         'Team': ['teamID', 'team_Name', 'coachID', 'divisionID', 'location', 'ownerID', 'general_manager', 'revenue', 'team_color'],
-        'Player': ['playerID', 'f_Name', 'l_Name', 'player_Number', 'team_ID', 'position', 'status', 'height_in', 'weight', 'starting_Year', 'age', 'team_Name']
+        'Player': ['playerID', 'f_Name', 'l_Name', 'player_Number', 'team_ID', 'position', 'status', 'height_in', 'weight', 'starting_Year', 'age']
     }
 
     if table_name not in allowed_tables:
         return {'error': 'Invalid table name'}, 400
 
     try:
+        
         query = f"SELECT * FROM {table_name} "
         if filters['type']=='Team':
             query += "JOIN Defense ON Defense.teamID = Team.teamID JOIN TeamRecord ON TeamRecord.teamID = Team.teamID "
-        if filters['type']=='Player':
+        elif filters['type']=='Player':
             if filters['position']=='Quarterback':
                 query += " JOIN Quarterback ON Quarterback.playerID = Player.playerID "
             elif filters['position']=='RunningBack':
@@ -263,7 +264,7 @@ def edit_data():
             if update_fields:
                 set_clause = ', '.join([f"{key} = %s" for key in update_fields.keys()])
                 sql_query = f"UPDATE {table} SET {set_clause} WHERE {identifier} = %s"
-
+                print(sql_query)
                 cursor.execute(sql_query, list(update_fields.values()) + [original_id])
                 conn.commit()
 
@@ -272,7 +273,7 @@ def edit_data():
             if position_fields:
                 set_clause = ', '.join([f"{key} = %s" for key in position_fields.keys()])
                 sql_query = f"UPDATE {position} SET {set_clause} WHERE {identifier} = %s"
-
+                print(sql_query)
                 cursor.execute(sql_query, list(position_fields.values()) + [original_id])
                 conn.commit()
 
@@ -397,33 +398,10 @@ def insert_team():
     try:
         data = request.get_json()
         print(data)
-        if not data:
-            return jsonify({
-                'success': False,
-                'message': 'No data provided'
-            }), 400
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        query = 'DELETE FROM '
-        if 'playerID' in data:
-            identifier = 'playerID'
-            identifierval = data[identifier]
-            tableName = 'Player'
-        elif 'teamID' in data:
-            identifier = 'teamID'
-            identifierval = data[identifier]
-            tableName = 'Team'
-        else:
-            return jsonify({
-                'success': False,
-                'message': 'Neither playerID nor teamID provided'
-            }), 400
-        query += f'{tableName} WHERE {identifier} = {identifierval}'
-        cursor.execute(query)
-        conn.commit()
+        
         return jsonify({
             'success': True,
-            'message': f'Record with {identifier} {identifierval} deleted successfully'
+            'message': f'Record inserted successfully!'
         })
 
     except Error as e:
@@ -439,7 +417,45 @@ def insert_player():
     try:
         data = request.get_json()
         print(data)
-        
+        query = "INSERT INTO Player("
+        cols = []
+        fields = []
+
+        if(data['playerID']==''):
+            data['playerID'] = getFreeIndex('Player')
+        """
+        new player: playerID -> all player fields (if playerID blank, get new index using function)
+        if position specific field (qb, rb, wr) make -> playerID then blank
+        """
+        for k,v in data.items():
+            if v!='':
+                cols.append(k)
+                fields.append(v)
+        """
+        print('cols:',cols)
+        print('fields:',fields)
+        print(', '.join([f"{col}" for col in cols]))
+        print(', '.join([f"{field}" for field in fields]))
+        """
+        query += (', '.join([f"{col}" for col in cols]))
+        query += ') VALUES('
+        query += (', '.join([f"'{field}'" for field in fields]))
+        query += ');'
+        print(query)
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        conn.commit()
+
+        if data['position'] in ('Quarterback', 'WideReceiver', 'RunningBack'):
+            query = f"INSERT INTO {data['position']}(playerID) VALUES('{data['playerID']}');"
+            print(query)
+            cursor.execute(query)
+            conn.commit()
+
+
+        cursor.close()
+        conn.close()
         return jsonify({
             'success': True,
             'message': f'Record inserted successfully!'
@@ -452,6 +468,16 @@ def insert_player():
             'message': 'An error occurred while deleting the record',
             'error': str(e)
         }), 500
+
+def getFreeIndex(table):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = f"SELECT MAX({table}ID) FROM {table};"
+    cursor.execute(query)
+    res = cursor.fetchone()
+    res = list(res.values())[0]+1
+    #print(res)
+    return res
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -197,7 +197,13 @@ export default function HomePage() {
                 ...prev,
                 divisionID: getDivisionID(value)
             }));
-        } else {
+        } else if(name==='team_ID'){
+            setFilters(prev => ({
+                ...prev,
+                [name]: teamMap[value]
+            }));
+        }
+        else {
             setFilters(prev => ({
                 ...prev,
                 [name]: value
@@ -439,7 +445,7 @@ export default function HomePage() {
                                 <>
                                     <select
                                         name="team_ID"
-                                        value={filters.team_ID}
+                                        value={teamIDMap[filters.team_ID]}
                                         onChange={handleChange}
                                         className="p-3 rounded-md shadow-md w-full max-w-md"
                                     >
@@ -532,7 +538,7 @@ export default function HomePage() {
                                         className="p-3 rounded-md shadow-md w-full max-w-md"
                                     />
                                     <input
-                                        type="number"
+                                        type="text"
                                         name="coachID"
                                         value={insertTeamVals.coachID}
                                         onChange={handleInsertChange}
@@ -761,7 +767,7 @@ export default function HomePage() {
                                     <strong>Name:</strong> {result.f_Name + ' ' + result.l_Name}
                                 </p>
                                 <p>
-                                    <strong>Team:</strong> {result.location + ' ' + result.team_Name}
+                                    <strong>Team:</strong> {teamIDMap[result.team_ID]}
                                 </p>
                                 <p>
                                     <strong>Age:</strong> {result.age}
