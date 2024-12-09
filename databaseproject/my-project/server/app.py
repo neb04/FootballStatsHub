@@ -31,8 +31,8 @@ def query_table(table_name, filters):
 
     # Define allowed tables and columns to prevent SQL injection
     allowed_tables = {
-        'Team': ['teamID', 'team_Name', 'coachID', 'divisionID', 'location', 'ownerID', 'general_manager', 'revenue', 'team_color'],
-        'Player': ['playerID', 'f_Name', 'l_Name', 'player_Number', 'team_ID', 'position', 'status', 'height_in', 'weight', 'starting_Year', 'age']
+        'Team': ['teamID', 'team_Name', 'coachID', 'divisionID', 'location', 'ownerID', 'general_manager', 'revenue', 'team_color', 'sacks', 'interceptions', 'touchdowns', 'tackles_for_loss', 'total_tackles', 'stuffs'],
+        'Player': ['playerID', 'f_Name', 'l_Name', 'player_Number', 'team_ID', 'position', 'status', 'height_in', 'weight', 'starting_Year', 'age','pass_yards', 'pass_att', 'pass_completions', 'touchdowns', 'interceptions', 'rushing_att', 'rushing_yards', 'fumbles', 'times_sacked', 'target', 'receptions', 'yards', 'fumble', 'kick_return', 'drops', 'rush_att', 'rushing_yards', 'rush_touchdown', 'rec_target', 'rec_yards', 'rec_touchdowns']
     }
 
     if table_name not in allowed_tables:
@@ -42,7 +42,7 @@ def query_table(table_name, filters):
         
         query = f"SELECT * FROM {table_name} "
         if filters['type']=='Team':
-            query += "JOIN Defense ON Defense.teamID = Team.teamID JOIN TeamRecord ON TeamRecord.teamID = Team.teamID "
+            query += "JOIN Defense ON Defense.teamID = Team.teamID JOIN TeamRecord ON TeamRecord.teamID = Team.teamID JOIN Coach ON Team.coachID = Coach.coachID "
         elif filters['type']=='Player':
             if filters['position']=='Quarterback':
                 query += " JOIN Quarterback ON Quarterback.playerID = Player.playerID "
@@ -114,7 +114,7 @@ def get_player():
     query = f"""
     SELECT Player.*, Team.location, Team.team_Name
     FROM Player
-    JOIN Team ON Team.teamID = Player.team_ID
+    LEFT JOIN Team ON Team.teamID = Player.team_ID
     WHERE CONCAT(Player.f_Name, ' ', Player.l_Name) LIKE '%{name}%';
     """
     print('Query: ', query)
@@ -250,13 +250,13 @@ def edit_data():
                     if any(field in data for field in fields):
                         position = pos
                         break
-
+            """
             if not position:
                 return jsonify({
                     'success': False,
                     'message': 'Position-specific fields detected, but position is not provided'
                 }), 400
-
+            """
             # Update Player table
             player_fields = {k: v for k, v in data.items() if k not in ['position', 'originalPlayerID'] and k not in position_tables.get(position, [])}
             update_fields = {k: v for k, v in player_fields.items() if k != identifier}
@@ -292,17 +292,19 @@ def edit_data():
             # Define defense stats columns
             defense_columns = ['sacks', 'interceptions', 'touchdowns', 'tackles_for_loss', 'total_tackles', 'stuffs']
             record_columns = ['standing', 'record']
+            coach_columns = ['coach_f_Name', 'coach_l_Name', 'coach_age']
 
             # Separate Team and Defense fields
-            team_fields = {k: v for k, v in data.items() if k not in defense_columns and k not in record_columns and k not in ['originalTeamID']}
+            team_fields = {k: v for k, v in data.items() if k not in defense_columns and k not in record_columns and k not in coach_columns and k not in ['originalTeamID']}
             defense_fields = {k: v for k, v in data.items() if k in defense_columns}
             record_fields = {k: v for k, v in data.items() if k in record_columns}
+            coach_fields = {k: v for k, v in data.items() if k in coach_columns}
 
             # Update Team table
             if team_fields:
                 set_clause = ', '.join([f"{key} = %s" for key in team_fields.keys()])
                 sql_query = f"UPDATE {table} SET {set_clause} WHERE {identifier} = %s"
-
+                
                 cursor.execute(sql_query, list(team_fields.values()) + [original_id])
                 conn.commit()
 
@@ -320,6 +322,14 @@ def edit_data():
                 sql_query = f"UPDATE TeamRecord SET {set_clause} WHERE {identifier} = %s"
 
                 cursor.execute(sql_query, list(record_fields.values()) + [original_id])
+                conn.commit()
+            
+            # Update Coach Table
+            if coach_fields:
+                set_clause = ', '.join([f"{key} = %s" for key in coach_fields.keys()])
+                sql_query = f"UPDATE Coach SET {set_clause} WHERE coachID = %s"
+
+                cursor.execute(sql_query, list(coach_fields.values()) + [data['coachID']])
                 conn.commit()
 
             # Handle ID change
@@ -398,7 +408,80 @@ def insert_team():
     try:
         data = request.get_json()
         print(data)
+        query = "INSERT INTO Team("
+        cols = []
+        fields = []
+
+        if(data['teamID']==''):
+            data['teamID'] = getFreeIndex('Team')
+        """
+        new team: teamID -> all team fields (if teamID blank then generate one)
+        teamRecord -> teamID then blank
+        defense -> teamID then blank
+        teamowner -> check if name already exists, set id if so, otherwise make new entry with new id
+        coach -> check if name already exists, set id if so, otherwise make new entry with id
+        """
+        specialCols = ['coachID', 'ownerID']
         
+        for k,v in data.items():
+            if k not in specialCols and v!='':
+                cols.append(k)
+                fields.append(v)
+        print(cols)
+        print(fields)
+        print('team name: ', data['team_Name'])
+        if data['team_Name'] =='':
+            return jsonify({
+                    'success': False,
+                    'message': 'Team name cannot be blank'
+                }), 400
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        if data['coachID'] != '':
+            #coachID is string, ideally First Last
+            data['coachID'] = data['coachID'].strip("'")
+            print(f"SELECT * FROM Coach WHERE CONCAT(coach_f_Name, ' ', coach_l_Name) LIKE '%{data['coachID']}%'")
+            cursor.execute(f"SELECT * FROM Coach WHERE CONCAT(coach_f_Name, ' ', coach_l_Name) LIKE '%{data['coachID']}%'")
+            result = cursor.fetchone()
+            if result is None:
+                newid = getFreeIndex('Coach')
+                cursor.execute(f"INSERT INTO Coach(coachID, coach_f_Name, coach_l_Name) VALUES(%s, %s, %s)", (newid, data['coachID'].split(' ')[0], data['coachID'].split(' ')[1]))
+                conn.commit()
+                data['coachID'] = newid
+                print('coachID: ', data['coachID'])
+            else:
+                data['coachID'] = result['coachID']
+                print('coachID: ', data['coachID'])
+            cols.append('coachID')
+            fields.append(data['coachID'])
+        #handle ownerID
+        if data['ownerID'] != '':
+            data['ownerID'] = data['ownerID'].strip("'")
+            print(f"SELECT * FROM TeamOwner WHERE CONCAT(owner_f_Name, ' ', owner_l_Name) LIKE '%{data['ownerID']}%'")
+            cursor.execute(f"SELECT * FROM TeamOwner WHERE CONCAT(owner_f_Name, ' ', owner_l_Name) LIKE '%{data['ownerID']}%'")
+            result = cursor.fetchone()
+            if result is None:
+                newid = getFreeIndex('TeamOwner', 'ownerID')
+                print(f"INSERT INTO TeamOwner(ownerID, owner_f_Name, owner_l_Name) VALUES({newid}, {data['ownerID'].split(' ')[0]}, {data['ownerID'].split(' ')[1]})")
+                cursor.execute(f"INSERT INTO TeamOwner(ownerID, owner_f_Name, owner_l_Name) VALUES(%s, %s, %s)", (newid, data['ownerID'].split(' ')[0], data['ownerID'].split(' ')[1]))
+                conn.commit()
+                
+                data['ownerID'] = newid
+                print('ownerID: ', data['ownerID'])
+            else:
+                data['ownerID'] = result['ownerID']
+                print('ownerID: ', data['ownerID'])
+            cols.append('ownerID')
+            fields.append(data['ownerID'])
+        
+        query = "INSERT INTO Team("
+        query += (', '.join([f"{col}" for col in cols]))
+        query += ') VALUES('
+        query += (', '.join([f"'{field}'" for field in fields]))
+        query += ');'
+        cursor.execute(query)
+        conn.commit()
+
         return jsonify({
             'success': True,
             'message': f'Record inserted successfully!'
@@ -469,10 +552,12 @@ def insert_player():
             'error': str(e)
         }), 500
 
-def getFreeIndex(table):
+def getFreeIndex(table, key=''):
+    if key=='':
+        key = table+'ID'
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    query = f"SELECT MAX({table}ID) FROM {table};"
+    query = f"SELECT MAX({key}) FROM {table};"
     cursor.execute(query)
     res = cursor.fetchone()
     res = list(res.values())[0]+1

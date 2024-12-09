@@ -45,6 +45,7 @@ export default function DisplayData(props) {
                 changes.originalPlayerID = displayData.playerID; // Use original ID from displayData
             } else if (editableData.teamID) {
                 changes.originalTeamID = displayData.teamID; // Use original ID from displayData
+                changes.coachID = editableData.coachID;
             }
     
             console.log("Data to be saved:", changes);

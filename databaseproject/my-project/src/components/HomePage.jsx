@@ -287,6 +287,30 @@ export default function HomePage() {
             age__lte: '',
             age__gte: ''
         });
+        setInsertPlayerVals({
+            playerID : '',
+            f_Name :'',
+            l_Name :'',
+            player_Number : '',
+            team_ID :'',
+            position :'',
+            status :'',
+            height_in: '',
+            weight : '',
+            starting_Year:  '',
+            age: '',
+        });
+        setInsertTeamVals({
+            teamID:'',
+            team_Name:'',
+            coachID:'',
+            divisionID:'',
+            location:'',
+            ownerID:'',
+            general_manager:'',
+            revenue:'',
+            team_color:''
+        });
         setSelectedTab('Team');
         setSearchResults([]);
         setSelectedResult(null);
@@ -438,6 +462,283 @@ export default function HomePage() {
                                         placeholder="Maximum Revenue"
                                         className="p-3 rounded-md shadow-md w-full max-w-md"
                                     />
+                                    <label>Defense Stats</label>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="sacks-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Sacks
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="sacks__gte"
+                                                value={filters.sacks__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="sacks-range"
+                                                type="range"
+                                                min="0"
+                                                max="50"
+                                                value={filters.sacks__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'sacks__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="sacks-range"
+                                                type="range"
+                                                min="0"
+                                                max="50"
+                                                value={filters.sacks__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'sacks__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="sacks__lte"
+                                                value={filters.sacks__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="interceptions-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Interceptions
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="interceptions__gte"
+                                                value={filters.interceptions__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="interceptions-range"
+                                                type="range"
+                                                min="0"
+                                                max="25"
+                                                value={filters.interceptions__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'interceptions__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="interceptions-range"
+                                                type="range"
+                                                min="0"
+                                                max="25"
+                                                value={filters.interceptions__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'interceptions__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="interceptions__lte"
+                                                value={filters.interceptions__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="touchdowns-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Touchdowns
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="touchdowns__gte"
+                                                value={filters.touchdowns__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="touchdowns-range"
+                                                type="range"
+                                                min="0"
+                                                max="25"
+                                                value={filters.touchdowns__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'touchdowns__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="touchdowns-range"
+                                                type="range"
+                                                min="0"
+                                                max="25"
+                                                value={filters.touchdowns__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'touchdowns__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="touchdowns__lte"
+                                                value={filters.touchdowns__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="tackles_for_loss-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Tackles For Loss
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="tackles_for_loss__gte"
+                                                value={filters.tackles_for_loss__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="tackles_for_loss-range"
+                                                type="range"
+                                                min="0"
+                                                max="50"
+                                                value={filters.tackles_for_loss__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'tackles_for_loss__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="tackles_for_loss-range"
+                                                type="range"
+                                                min="0"
+                                                max="50"
+                                                value={filters.tackles_for_loss__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'tackles_for_loss__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="tackles_for_loss__lte"
+                                                value={filters.tackles_for_loss__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="total_tackles-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Total Tackles
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="total_tackles__gte"
+                                                value={filters.total_tackles__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="total_tackles-range"
+                                                type="range"
+                                                min="0"
+                                                max="500"
+                                                value={filters.total_tackles__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'total_tackles__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="total_tackles-range"
+                                                type="range"
+                                                min="0"
+                                                max="500"
+                                                value={filters.total_tackles__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'total_tackles__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="total_tackles__lte"
+                                                value={filters.total_tackles__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="stuffs-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Stuffs
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="stuffs__gte"
+                                                value={filters.stuffs__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="stuffs-range"
+                                                type="range"
+                                                min="0"
+                                                max="25"
+                                                value={filters.stuffs__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'stuffs__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="stuffs-range"
+                                                type="range"
+                                                min="0"
+                                                max="25"
+                                                value={filters.stuffs__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'stuffs__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="stuffs__lte"
+                                                value={filters.stuffs__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
                                 </>
                             )}
 
@@ -469,22 +770,1264 @@ export default function HomePage() {
                                             </option>
                                         ))}
                                     </select>
-                                    <input
-                                        type="number"
-                                        name="age__gte"
-                                        value={filters.age__gte}
-                                        onChange={handleChange}
-                                        placeholder="Minimum Age"
-                                        className="p-3 rounded-md shadow-md w-full max-w-md"
-                                    />
-                                    <input
-                                        type="number"
-                                        name="age__lte"
-                                        value={filters.age__lte}
-                                        onChange={handleChange}
-                                        placeholder="Maximum Age"
-                                        className="p-3 rounded-md shadow-md w-full max-w-md"
-                                    />
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="height-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Height (in)
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="height_in__gte"
+                                                value={filters.height_in__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="height-range"
+                                                type="range"
+                                                min="0"
+                                                max="100"
+                                                value={filters.height_in__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'height_in__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="height-range"
+                                                type="range"
+                                                min="0"
+                                                max="100"
+                                                value={filters.height_in__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'height_in__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="height_in__lte"
+                                                value={filters.height_in__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="weight-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Weight (lbs)
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="weight__gte"
+                                                value={filters.weight__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="weight-range"
+                                                type="range"
+                                                min="0"
+                                                max="400"
+                                                value={filters.weight__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'weight__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="weight-range"
+                                                type="range"
+                                                min="0"
+                                                max="400"
+                                                value={filters.weight__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'weight__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="weight__lte"
+                                                value={filters.weight__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="starting_Year-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Starting Year
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="starting_Year__gte"
+                                                value={filters.starting_Year__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="starting_Year-range"
+                                                type="range"
+                                                min="2000"
+                                                max="2024"
+                                                value={filters.starting_Year__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'starting_Year__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="starting_Year-range"
+                                                type="range"
+                                                min="2000"
+                                                max="2024"
+                                                value={filters.starting_Year__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'starting_Year__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="starting_Year__lte"
+                                                value={filters.starting_Year__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                        <label htmlFor="age-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                            Age
+                                        </label>
+                                        <div className="flex items-center space-x-4">
+                                            <input
+                                                type="number"
+                                                name="age__gte"
+                                                value={filters.age__gte}
+                                                onChange={handleChange}
+                                                placeholder="Min"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                            {/* Range Slider */}
+                                            <input
+                                                id="age-range"
+                                                type="range"
+                                                min="0"
+                                                max="100"
+                                                value={filters.age__gte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'age__gte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                id="age-range"
+                                                type="range"
+                                                min="0"
+                                                max="100"
+                                                value={filters.age__lte}
+                                                onChange={(e) =>
+                                                    handleChange({ target: { name: 'age__lte', value: e.target.value } })
+                                                }
+                                                className="w-full"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="age__lte"
+                                                value={filters.age__lte}
+                                                onChange={handleChange}
+                                                placeholder="Max"
+                                                className="p-2 border rounded-md w-20 text-center"
+                                            />
+                                        </div>
+                                    </div>
+                                    {filters.position== "Quarterback" && (
+                                        <>
+                                            <label>Position-specific Stats</label>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="pass_yards-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Pass Yards
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="pass_yards__gte"
+                                                        value={filters.pass_yards__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="pass_yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="2000"
+                                                        value={filters.pass_yards__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'pass_yards__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="pass_yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="2000"
+                                                        value={filters.pass_yards__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'pass_yards__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="pass_yards__lte"
+                                                        value={filters.pass_yards__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="pass_att-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Pass Attempts
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="pass_att__gte"
+                                                        value={filters.pass_att__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="pass_att-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="500"
+                                                        value={filters.pass_att__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'pass_att__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="pass_att-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="500"
+                                                        value={filters.pass_att__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'pass_att__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="pass_att__lte"
+                                                        value={filters.pass_att__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="pass_completions-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Pass Completions
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="pass_completions__gte"
+                                                        value={filters.pass_completions__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="pass_completions-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="200"
+                                                        value={filters.pass_completions__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'pass_completions__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="pass_completions-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="200"
+                                                        value={filters.pass_completions__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'pass_completions__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="pass_completions__lte"
+                                                        value={filters.pass_completions__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="touchdowns-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Touchdowns
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="touchdowns__gte"
+                                                        value={filters.touchdowns__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="touchdowns-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.touchdowns__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'touchdowns__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="touchdowns-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.touchdowns__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'touchdowns__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="touchdowns__lte"
+                                                        value={filters.touchdowns__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="interceptions-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Interceptions
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="interceptions__gte"
+                                                        value={filters.interceptions__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="interceptions-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.interceptions__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'interceptions__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="interceptions-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.interceptions__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'interceptions__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="interceptions__lte"
+                                                        value={filters.interceptions__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="rushing_att-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Rushing Attempts
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="rushing_att__gte"
+                                                        value={filters.rushing_att__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="rushing_att-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="100"
+                                                        value={filters.rushing_att__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rushing_att__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="rushing_att-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="100"
+                                                        value={filters.rushing_att__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rushing_att__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="rushing_att__lte"
+                                                        value={filters.rushing_att__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="rushing_yards-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Rushing Yards
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="rushing_yards__gte"
+                                                        value={filters.rushing_yards__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="rushing_yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="500"
+                                                        value={filters.rushing_yards__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rushing_yards__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="rushing_yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="500"
+                                                        value={filters.rushing_yards__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rushing_yards__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="rushing_yards__lte"
+                                                        value={filters.rushing_yards__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="fumbles-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Fumbles
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="fumbles__gte"
+                                                        value={filters.fumbles__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="fumbles-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.fumbles__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'fumbles__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="fumbles-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.fumbles__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'fumbles__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="fumbles__lte"
+                                                        value={filters.fumbles__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="times_sacked-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Times Sacked
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="times_sacked__gte"
+                                                        value={filters.times_sacked__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="times_sacked-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="50"
+                                                        value={filters.times_sacked__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'times_sacked__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="times_sacked-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="50"
+                                                        value={filters.times_sacked__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'times_sacked__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="times_sacked__lte"
+                                                        value={filters.times_sacked__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                    {filters.position=="WideReceiver" && (
+                                        <>
+                                            <label>Position-specific Stats</label>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="target-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Target
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="target__gte"
+                                                        value={filters.target__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="target-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="100"
+                                                        value={filters.target__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'target__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="target-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="100"
+                                                        value={filters.target__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'target__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="target__lte"
+                                                        value={filters.target__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="receptions-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Receptions
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="receptions__gte"
+                                                        value={filters.receptions__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="receptions-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="50"
+                                                        value={filters.receptions__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'receptions__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="receptions-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="50"
+                                                        value={filters.receptions__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'receptions__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="receptions__lte"
+                                                        value={filters.receptions__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="yards-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Yards
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="yards__gte"
+                                                        value={filters.yards__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="600"
+                                                        value={filters.yards__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'yards__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="600"
+                                                        value={filters.yards__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'yards__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="yards__lte"
+                                                        value={filters.yards__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="touchdowns-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Touchdowns
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="touchdowns__gte"
+                                                        value={filters.touchdowns__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="touchdowns-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.touchdowns__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'touchdowns__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="touchdowns-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.touchdowns__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'touchdowns__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="touchdowns__lte"
+                                                        value={filters.touchdowns__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="fumble-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Fumble
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="fumble__gte"
+                                                        value={filters.fumble__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="fumble-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.fumble__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'fumble__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="fumble-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.fumble__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'fumble__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="fumble__lte"
+                                                        value={filters.fumble__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="kick_return-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Kick return
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="kick_return__gte"
+                                                        value={filters.kick_return__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="kick_return-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.kick_return__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'kick_return__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="kick_return-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.kick_return__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'kick_return__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="kick_return__lte"
+                                                        value={filters.kick_return__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="drops-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Drops
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="drops__gte"
+                                                        value={filters.drops__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="drops-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="5"
+                                                        value={filters.drops__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'drops__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="drops-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="5"
+                                                        value={filters.drops__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'drops__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="drops__lte"
+                                                        value={filters.drops__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                    {filters.position=="RunningBack" && (
+                                        <>
+                                            <label>Position-specific Stats</label>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="rush_att-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Rush Attempts
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="rush_att__gte"
+                                                        value={filters.rush_att__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="rush_att-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="150"
+                                                        value={filters.rush_att__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rush_att__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="rush_att-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="150"
+                                                        value={filters.rush_att__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rush_att__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="rush_att__lte"
+                                                        value={filters.rush_att__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="rushing_yards-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Rushing Yards
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="rushing_yards__gte"
+                                                        value={filters.rushing_yards__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="rushing_yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="1000"
+                                                        value={filters.rushing_yards__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rushing_yards__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="rushing_yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="1000"
+                                                        value={filters.rushing_yards__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rushing_yards__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="rushing_yards__lte"
+                                                        value={filters.rushing_yards__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="rush_touchdown-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Rush Touchdowns
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="rush_touchdown__gte"
+                                                        value={filters.rush_touchdown__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="rush_touchdown-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.rush_touchdown__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rush_touchdown__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="rush_touchdown-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="10"
+                                                        value={filters.rush_touchdown__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rush_touchdown__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="rush_touchdown__lte"
+                                                        value={filters.rush_touchdown__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="rec_target-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Rec Target
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="rec_target__gte"
+                                                        value={filters.rec_target__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="rec_target-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="50"
+                                                        value={filters.rec_target__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rec_target__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="rec_target-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="50"
+                                                        value={filters.rec_target__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rec_target__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="rec_target__lte"
+                                                        value={filters.rec_target__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="rec_yards-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Rec Yards
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="rec_yards__gte"
+                                                        value={filters.rec_yards__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="rec_yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="300"
+                                                        value={filters.rec_yards__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rec_yards__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="rec_yards-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="300"
+                                                        value={filters.rec_yards__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rec_yards__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="rec_yards__lte"
+                                                        value={filters.rec_yards__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="rec_touchdowns-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Rec Touchdowns
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="rec_touchdowns__gte"
+                                                        value={filters.rec_touchdowns__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="rec_touchdowns-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="5"
+                                                        value={filters.rec_touchdowns__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rec_touchdowns__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="rec_touchdowns-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="5"
+                                                        value={filters.rec_touchdowns__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'rec_touchdowns__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="rec_touchdowns__lte"
+                                                        value={filters.rec_touchdowns__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="p-3 rounded-md shadow-md w-full max-w-md">
+                                                <label htmlFor="fumble-range" className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Fumble
+                                                </label>
+                                                <div className="flex items-center space-x-4">
+                                                    <input
+                                                        type="number"
+                                                        name="fumble__gte"
+                                                        value={filters.fumble__gte}
+                                                        onChange={handleChange}
+                                                        placeholder="Min"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                    {/* Range Slider */}
+                                                    <input
+                                                        id="fumble-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="5"
+                                                        value={filters.fumble__gte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'fumble__gte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        id="fumble-range"
+                                                        type="range"
+                                                        min="0"
+                                                        max="5"
+                                                        value={filters.fumble__lte}
+                                                        onChange={(e) =>
+                                                            handleChange({ target: { name: 'fumble__lte', value: e.target.value } })
+                                                        }
+                                                        className="w-full"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        name="fumble__lte"
+                                                        value={filters.fumble__lte}
+                                                        onChange={handleChange}
+                                                        placeholder="Max"
+                                                        className="p-2 border rounded-md w-20 text-center"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                        </>
+                                    )}
                                 </>
                             )}
                         </div>
@@ -534,7 +2077,7 @@ export default function HomePage() {
                                         name="team_Name"
                                         value={insertTeamVals.team_Name}
                                         onChange={handleInsertChange}
-                                        placeholder="Team Name"
+                                        placeholder="Team Name (Required)"
                                         className="p-3 rounded-md shadow-md w-full max-w-md"
                                     />
                                     <input
@@ -590,16 +2133,17 @@ export default function HomePage() {
                                         placeholder="Revenue"
                                         className="p-3 rounded-md shadow-md w-full max-w-md"
                                     />
-                                    <input
-                                        type="text"
-                                        name="team_color"
-                                        value={insertTeamVals.team_color}
-                                        onChange={handleInsertChange}
-                                        placeholder="Team Color"
-                                        className="p-3 rounded-md shadow-md w-full max-w-md"
-                                    />
-                                    
-                                    
+                                    <div className="p-3 rounded-md shadow-md w-full max-w-md flex items-center">
+                                        <span className="text-gray-400 text mr-3">Team Color</span>
+                                        <input
+                                            id="team_color"
+                                            type="color"
+                                            name="team_color"
+                                            value={insertTeamVals.team_color}
+                                            onChange={handleInsertChange}
+                                            //className="w-5 h-5 p-0 border-none outline-none rounded-md"
+                                        />
+                                    </div>
                                 </>
                             )}
                             {/*playerID f_Name l_Name player_Number team_ID position status height_in weight starting_Year age */}
@@ -618,7 +2162,7 @@ export default function HomePage() {
                                         name="f_Name"
                                         value={insertPlayerVals.f_Name}
                                         onChange={handleInsertChange}
-                                        placeholder="First Name"
+                                        placeholder="First Name (Required)"
                                         className="p-3 rounded-md shadow-md w-full max-w-md"
                                     />
                                     <input
@@ -626,7 +2170,7 @@ export default function HomePage() {
                                         name="l_Name"
                                         value={insertPlayerVals.l_Name}
                                         onChange={handleInsertChange}
-                                        placeholder="Last Name"
+                                        placeholder="Last Name (Required)"
                                         className="p-3 rounded-md shadow-md w-full max-w-md"
                                     />
                                     <input
